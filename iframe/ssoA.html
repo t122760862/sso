@@ -4,7 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>单系统登录</title>
+		<title>Parent</title>
 	</head>
 	<body>
 		<div id="app">
@@ -24,7 +24,7 @@
 		<script>
 			const { createApp } = Vue
 
-			const BASE_URL = "http://localhost:3000"
+			const BASE_URL = "http://localhost:3001"
 			createApp({
 				data() {
 					return {
@@ -49,6 +49,7 @@
 							if (res.code === "200") {
 								window.alert("登录成功")
 								this.getInfo()
+								createIframe(res.token)
 								return
 							}
 
@@ -81,6 +82,22 @@
 					credentials: "include",
 					...options
 				}).then((res) => res.json())
+			}
+
+			function createIframe(token) {
+				const iframe = document.createElement("iframe")
+				iframe.src = "http://127.0.0.1:8005/iframe/ssoB.html"
+				iframe.height = iframe.width = 0
+				document.body.append(iframe)
+
+				// 使用postMessage()方法将token传递给iframe
+				setTimeout(function () {
+					iframe.contentWindow.postMessage(
+						token,
+						"http://127.0.0.1:8005/iframe/ssoB.html"
+					)
+				}, 1000)
+				setTimeout(iframe.remove, 1500)
 			}
 		</script>
 	</body>

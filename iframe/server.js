@@ -8,24 +8,24 @@ const COOKIE_MAP = {
 const ROUTE_MAP = {
   login,
   getInfo,
-  loginout
+  loginout,
+  loginByToken
 }
 
 const app = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json')
-  res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:5500')
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
   res.setHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   const curRoute = ROUTE_MAP[req.url.slice(1)]
-  console.log(curRoute, 'curRoute');
   curRoute && curRoute(req, res)
 
 })
 
-app.listen(3000)
+app.listen(3001)
 
-console.log('服务起动,监听3000端口')
+console.log('服务起动,监听3001端口')
 
 const ACCOUNT_MAP = {
   'test': '12345',
@@ -93,4 +93,22 @@ function checkLogin(req, res) {
 function getToken(req) {
   if (!req.headers.cookie) return ''
   return req.headers.cookie.split('=')
+}
+
+function loginByToken(req, res) {
+  let body = [];
+  req.on('data', (chunk) => {
+    body.push(chunk);
+  }).on('end', () => {
+    body = Buffer.concat(body).toString();
+    body = JSON.parse(body)
+    if (COOKIE_MAP[body.token]) {
+      res.setHeader('set-cookie', 'token=test;SameSite=None;Secure')
+      res.write('{"code": "200", "token": "test", "msg": "token login success" }')
+      res.end()
+      return
+    }
+    res.write('{"code": "201", "msg": "token error"}')
+    res.end()
+  });
 }

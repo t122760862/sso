@@ -4,7 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>单系统登录</title>
+		<title>child</title>
 	</head>
 	<body>
 		<div id="app">
@@ -24,7 +24,7 @@
 		<script>
 			const { createApp } = Vue
 
-			const BASE_URL = "http://localhost:3000"
+			const BASE_URL = "http://localhost:3001"
 			createApp({
 				data() {
 					return {
@@ -35,6 +35,7 @@
 					}
 				},
 				mounted() {
+					this.onMessage()
 					this.getInfo()
 				},
 				methods: {
@@ -71,6 +72,36 @@
 								this.userInfo = ""
 							}
 						})
+					},
+
+					handleLoginByToken() {
+						const token = localStorage.getItem("token")
+						if (token) {
+							fetchFactory(BASE_URL + "/loginByToken", {
+								method: "POST",
+								body: JSON.stringify({
+									token
+								})
+							}).then((res) => {
+								if (res.code === "200") {
+									// this.getInfo()
+								}
+							})
+						}
+					},
+
+					onMessage() {
+						window.addEventListener(
+							"message",
+							(event) => {
+								// 判断当前是否处于iframe中
+								if (window.self !== window.top) {
+									localStorage.setItem("token", event.data)
+									this.handleLoginByToken()
+								}
+							},
+							false
+						)
 					}
 				}
 			}).mount("#app")

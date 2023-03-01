@@ -5,24 +5,22 @@ const COOKIE_MAP = {
   admin: '我是admin账号'
 }
 
+const ROUTE_MAP = {
+  login,
+  getInfo,
+  loginout
+}
+
 const app = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json')
   res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:5500')
   res.setHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // console.log(req, 'req')
-  if (req.url === '/login') {
-    login(req, res)
-  }
+  const curRoute = ROUTE_MAP[req.url.slice(1)]
+  console.log(curRoute, 'curRoute');
+  curRoute && curRoute(req, res)
 
-  if (req.url === '/getInfo') {
-    getInfo(req, res)
-  }
-
-  if (req.url === '/loginout') {
-    loginout(req, res)
-  }
 })
 
 app.listen(3000)
@@ -30,15 +28,12 @@ app.listen(3000)
 console.log('服务一起动,监听3000端口')
 
 const ACCOUNT_MAP = {
-  account: 'test',
-  password: '12345'
+  'test': '12345',
 }
 
 function checkAccount(obj) {
   const { account, password } = obj
-
-  if (account === ACCOUNT_MAP.account && password === ACCOUNT_MAP.password) return true
-  return false
+  return ACCOUNT_MAP[account] === password
 }
 
 function login(req, res) {
@@ -48,7 +43,6 @@ function login(req, res) {
   }).on('end', () => {
     body = Buffer.concat(body).toString();
     body = JSON.parse(body)
-    // at this point, `body` has the entire request body stored in it as a string
     if (checkAccount(body)) {
       res.setHeader('set-cookie', 'token=test;SameSite=None;Secure')
       res.write('{"code": "200"}')

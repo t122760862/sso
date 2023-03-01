@@ -44,12 +44,12 @@
 								password: this.password
 							})
 						}).then((res) => {
-							console.log(res, "ress")
 							if (res.code === "200") {
 								window.alert("登录成功")
 								this.getInfo()
 								return
 							}
+
 							window.alert("密码错误")
 						})
 					},
@@ -64,7 +64,6 @@
 
 					handleLoginout() {
 						fetchFactory("http://localhost:3000/loginout").then((res) => {
-							console.log(res, "ress")
 							if (res.code === "200") {
 								alert("退出成功")
 								this.userInfo = ""
@@ -73,6 +72,7 @@
 					}
 				}
 			}).mount("#app")
+
 			async function fetchFactory(url, options) {
 				return fetch(url, {
 					methods: "POST",
